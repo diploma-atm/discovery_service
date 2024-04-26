@@ -1,0 +1,40 @@
+plugins {
+	id 'org.springframework.boot' version '3.2.2'
+	id 'io.spring.dependency-management' version '1.1.4'
+	id 'java'
+}
+
+group = 'kz.itspace.shared'
+version = '1.0.0'
+sourceCompatibility = JavaVersion.VERSION_17
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2023.0.0")
+}
+
+dependencies {
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+bootBuildImage {
+	if (!project.hasProperty("dockerImageTag")) {
+		ext.dockerImageTag = "test"
+	}
+
+	builder = "paketobuildpacks/builder-jammy-tiny"
+	createdDate = "now"
+	imageName = "ghcr.io/diploma-atm/discovery_service:${dockerImageTag}"
+	environment = ["BP_NATIVE_IMAGE"             : "false",
+				   "BP_JVM_VERSION"              : "17"]
+}
